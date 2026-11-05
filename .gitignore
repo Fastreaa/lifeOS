@@ -1,0 +1,17 @@
+# macOS / Xcode
+.DS_Store
+xcuserdata/
+*.xcuserstate
+DerivedData/
+build/
+.swiftpm/
+
+# Configuración local y secretos (nunca al repositorio)
+*.local.xcconfig
+Secrets.xcconfig
+.env
+.env.*
+
+# Supabase CLI (etapa 03)
+supabase/.temp/
+supabase/.branches/
