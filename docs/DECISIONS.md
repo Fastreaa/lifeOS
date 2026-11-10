@@ -133,3 +133,26 @@ Formato: contexto → decisión → consecuencias. Solo decisiones confirmadas.
 - Búsqueda por título y notas con `localizedStandardContains`: ignora
   mayúsculas y acentos. Mientras se busca, el resumen se oculta.
 - Vibración suave (`sensoryFeedback`) solo al completar, no al reabrir.
+
+## D-015 · Nuevo orden: funciones visibles antes que la nube
+- Contexto: la app funcionaba pero se veía básica; Supabase no añade nada
+  visible.
+- Decisión: tras la etapa 02, construir primero los módulos visibles en local,
+  uno por incremento: 05.1 Hábitos · 05.2 Bienestar · identidad visual y
+  dashboard · agenda y bloques · proyectos. Supabase (etapa 03) después.
+- Consecuencias: cada módulo sigue el patrón entidad → repositorio → ViewModel
+  → vistas, con borrado lógico y `updatedAt`, para sincronizar más tarde sin
+  rehacer nada. Sustituye el orden de D-004.
+
+## D-016 · Hábitos
+- `LocalDay` (año, mes, día) representa un día del calendario sin hora; se
+  guarda como entero `20261110`. Completar un hábito el martes sigue siendo
+  martes aunque cambie la zona horaria.
+- Días de la semana como `Set<Int>` del dominio (1 = domingo … 7 = sábado),
+  guardados como máscara de bits (todos los días = 127).
+- Marcar hoy crea un `HabitLog`; desmarcar lo marca como borrado (borrado
+  lógico, igual que las tareas). Volver a marcar lo restaura.
+- Progreso sin castigo: la racha ignora los días de descanso y no se corta por
+  el día de hoy mientras no termine. Se muestra también "X de Y en 7 días".
+- Navegación por pestañas (`TabView`): Hoy · Hábitos.
+- Añadir modelos al esquema de SwiftData usa migración ligera automática.
