@@ -66,3 +66,16 @@ Formato: contexto → decisión → consecuencias. Solo decisiones confirmadas.
 - Decisión: los tipos de `Domain/` se declaran `nonisolated`.
 - Consecuencias: el dominio se puede usar desde cualquier hilo (sincronización,
   IA) sin cambios. La interfaz sigue siendo MainActor por defecto.
+
+## D-009 · Persistencia local v1 con SwiftData
+- Contenedor creado en `AppDependencies` con `cloudKitDatabase: .none`: la
+  sincronización será con Supabase (etapa 03), no con iCloud.
+- `TaskRecord` (`@Model`) vive en `Infrastructure/Persistence` con `id` único.
+- `TaskRepository` es `@MainActor` y trabaja sobre el contexto principal.
+  Excepción consciente a D-008: la sincronización en segundo plano de la
+  etapa 03 usará su propio acceso a SwiftData.
+- Una sola vía de escritura: `save` crea o actualiza según el id. Borrar es
+  guardar una tarea con `markDeleted()` aplicado.
+- Al leer, los datos se revalidan con las reglas del dominio. Si un registro
+  está corrupto, la lectura falla con un error. Límite conocido: revisar si
+  conviene omitir el registro dañado en lugar de fallar toda la lista.

@@ -49,6 +49,35 @@ nonisolated struct TaskItem: Identifiable, Equatable, Sendable {
         self.deletedAt = nil
     }
 
+    // MARK: - Reconstrucción
+
+    /// Reconstruye una tarea existente a partir de datos guardados.
+    /// Vuelve a aplicar las reglas: si los datos almacenados no las cumplen,
+    /// lanza un error en lugar de cargar una tarea inválida.
+    init(
+        restoringID id: UUID,
+        title: String,
+        notes: String?,
+        priority: TaskPriority,
+        dueDate: Date?,
+        estimatedMinutes: Int?,
+        completedAt: Date?,
+        createdAt: Date,
+        updatedAt: Date,
+        deletedAt: Date?
+    ) throws {
+        self.id = id
+        self.title = try Self.validatedTitle(title)
+        self.notes = Self.normalizedNotes(notes)
+        self.priority = priority
+        self.dueDate = dueDate
+        self.estimatedMinutes = try Self.validatedEstimate(estimatedMinutes)
+        self.completedAt = completedAt
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.deletedAt = deletedAt
+    }
+
     // MARK: - Cambios
 
     /// Reemplaza los campos editables. Si algún dato es inválido, lanza un
