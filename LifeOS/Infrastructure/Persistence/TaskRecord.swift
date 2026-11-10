@@ -3,8 +3,11 @@ import SwiftData
 
 /// Representación de una tarea en SwiftData. Solo la conoce Infrastructure;
 /// el resto de la app trabaja con `TaskItem`.
+///
+/// `nonisolated`: su `deinit` no es aislado (ver D-012) y, en la etapa 03,
+/// la sincronización podrá usarlo fuera del hilo principal.
 @Model
-final class TaskRecord {
+nonisolated final class TaskRecord {
     @Attribute(.unique) var id: UUID
     var title: String
     var notes: String?

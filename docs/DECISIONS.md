@@ -79,3 +79,57 @@ Formato: contexto → decisión → consecuencias. Solo decisiones confirmadas.
 - Al leer, los datos se revalidan con las reglas del dominio. Si un registro
   está corrupto, la lectura falla con un error. Límite conocido: revisar si
   conviene omitir el registro dañado en lugar de fallar toda la lista.
+
+## D-010 · Interfaz de tareas v1
+- `TaskListViewModel` (`@Observable`) es el único intermediario entre las
+  vistas y el repositorio. Recibe la hora como dependencia para poder probarlo.
+- El repositorio guarda el `ModelContainer`, no solo el contexto, para que la
+  base de datos viva lo mismo que él.
+- Orden de pendientes: con fecha límite primero (la más próxima arriba), luego
+  mayor prioridad, luego las más antiguas. Completadas: la más reciente arriba.
+- Borrar con deslizamiento no pide confirmación: es borrado lógico. Pendiente:
+  añadir "deshacer".
+- Las pruebas de interfaz arrancan la app con `-ui-testing`, que usa una base de
+  datos en memoria vacía.
+- `PreviewTaskRepository` (solo `DEBUG`) alimenta las vistas previas de Xcode.
+
+## D-011 · Flujo de Git simplificado
+- Durante el desarrollo no se exige un commit por incremento.
+- Al terminar cada sesión: `bash scripts/guardar.sh "descripción"`, que hace
+  commit de todo, push y borra el token de la memoria.
+
+## D-012 · Evitar deinits aislados anidados
+- Contexto: con Default Actor Isolation = MainActor, las clases tienen deinit
+  aislado. Al liberar `AppDependencies` (deinit aislado) se liberaba dentro el
+  repositorio (otro deinit aislado). En Xcode 26.2 / Swift 6.2.3 eso provocó un
+  SIGABRT dentro del runtime de Swift (`swift_task_deinitOnExecutor` →
+  `TaskLocal::StopLookupScope` → "pointer being freed was not allocated").
+- Decisión: `AppDependencies` es un `struct`. `SwiftDataTaskRepository`,
+  `TaskRecord` y `PreviewTaskRepository` son `nonisolated`; solo los métodos que
+  usan el contexto de SwiftData son `@MainActor`.
+- Consecuencias: ninguna pieza de infraestructura tiene deinit aislado.
+  `TaskRecord` queda listo para usarse fuera del hilo principal en la etapa 03.
+  Regla para clases nuevas de infraestructura: declararlas `nonisolated`.
+  Revisar si una versión futura de Xcode corrige el fallo del runtime.
+
+## D-013 · Deinit explícitamente `nonisolated` en clases MainActor
+- Contexto: el fallo de D-012 también ocurre con un único deinit aislado, sin
+  anidamiento (observado en `TaskListViewModel` durante las pruebas). Con
+  Default Actor Isolation = MainActor, el `deinit` hereda el aislamiento y se
+  ejecuta mediante `swift_task_deinitOnExecutor`, que es donde falla el runtime.
+- Decisión: toda clase aislada al MainActor que pueda liberarse (ViewModels y
+  similares) declara `nonisolated deinit {}`. Su deinit no debe tocar estado
+  aislado; si algún día necesita hacerlo, revisar esta decisión.
+- Consecuencias: se evita el SIGABRT. Revisar cuando una versión nueva de
+  Xcode corrija el fallo: entonces estas líneas se podrán quitar.
+
+## D-014 · Pulido de interfaz v1
+- Resumen del día (`DaySummary`, lógica pura): pendientes, cuántas vencen hoy,
+  tiempo estimado de lo que vence hoy y cuántas tienen fecha anterior. Las de
+  fecha anterior se muestran en tono neutro, sin rojo ni alarmas.
+- Borrar muestra "Deshacer" durante 5 segundos. El dominio gana `restore(at:)`,
+  que quita `deletedAt` y actualiza `updatedAt` (compatible con la
+  sincronización por última escritura).
+- Búsqueda por título y notas con `localizedStandardContains`: ignora
+  mayúsculas y acentos. Mientras se busca, el resumen se oculta.
+- Vibración suave (`sensoryFeedback`) solo al completar, no al reabrir.

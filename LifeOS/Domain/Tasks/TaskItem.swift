@@ -122,6 +122,13 @@ nonisolated struct TaskItem: Identifiable, Equatable, Sendable {
         updatedAt = now
     }
 
+    /// Deshace el borrado lógico. Si no estaba borrada, no cambia nada.
+    mutating func restore(at now: Date = .now) {
+        guard deletedAt != nil else { return }
+        deletedAt = nil
+        updatedAt = now
+    }
+
     // MARK: - Reglas
 
     private static func validatedTitle(_ title: String) throws -> String {
