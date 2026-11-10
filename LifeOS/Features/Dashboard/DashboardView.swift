@@ -2,7 +2,13 @@ import SwiftUI
 
 struct DashboardView: View {
     @Bindable var viewModel: TaskListViewModel
+    let habits: HabitsViewModel
+    let wellness: WellnessViewModel
+    let onSelectTab: (AppTab) -> Void
+
     @State private var formMode: TaskFormMode?
+    @State private var checkInSheet: CheckInSheet?
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         NavigationStack {
@@ -33,57 +39,107 @@ struct DashboardView: View {
                     try save(draft, mode: mode)
                 }
             }
+            .sheet(item: $checkInSheet) { sheet in
+                CheckInFormView(sheet: sheet) { draft in
+                    try wellness.save(draft, for: sheet.day)
+                }
+            }
             .alert("Algo salió mal", isPresented: $viewModel.isShowingError) {
                 Button("Aceptar", role: .cancel) {}
             } message: {
                 Text(viewModel.errorMessage ?? "")
             }
             .task {
-                viewModel.load()
+                loadAll()
             }
             .task(id: viewModel.recentlyDeleted?.id) {
                 await autoDismissUndo()
             }
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active {
+                    loadAll()
+                }
+            }
         }
+    }
+
+    private func loadAll() {
+        viewModel.load()
+        habits.load()
+        wellness.load()
     }
 
     // MARK: - Contenido
 
     @ViewBuilder
     private func content(at date: Date) -> some View {
-        if viewModel.isEmpty {
-            ContentUnavailableView {
-                Label("Tu día está despejado", systemImage: "sun.max")
-            } description: {
-                Text("Cuando quieras, añade una tarea con el botón +.")
-            }
-            .accessibilityIdentifier("dashboard.emptyState")
-        } else if viewModel.hasNoSearchResults {
+        if viewModel.hasNoSearchResults {
             ContentUnavailableView.search(text: viewModel.searchText)
         } else {
             List {
                 if !viewModel.isSearching {
                     Section {
-                        DaySummaryView(summary: viewModel.summary(at: date))
+                        TodayTasksCard(summary: viewModel.summary(at: date))
+                    } header: {
+                        Text(date.formatted(.dateTime.weekday(.wide).day().month(.wide)))
                     }
-                }
-                if !viewModel.visiblePendingTasks.isEmpty {
-                    Section("Pendientes") {
-                        ForEach(viewModel.visiblePendingTasks) { task in
-                            row(for: task)
+                    Section {
+                        TodayHabitsCard(viewModel: habits) {
+                            onSelectTab(.habits)
+                        }
+                    }
+                    Section {
+                        TodayWellnessCard(viewModel: wellness) {
+                            checkInSheet = CheckInSheet(
+                                day: wellness.today,
+                                existing: wellness.todayCheckIn,
+                                isToday: true
+                            )
                         }
                     }
                 }
-                if !viewModel.visibleCompletedTasks.isEmpty {
-                    Section("Completadas") {
-                        ForEach(viewModel.visibleCompletedTasks) { task in
-                            row(for: task)
+
+                if viewModel.isEmpty {
+                    Section("Tareas") {
+                        emptyTasksRow
+                    }
+                } else {
+                    if !viewModel.visiblePendingTasks.isEmpty {
+                        Section("Pendientes") {
+                            ForEach(viewModel.visiblePendingTasks) { task in
+                                row(for: task)
+                            }
+                        }
+                    }
+                    if !viewModel.visibleCompletedTasks.isEmpty {
+                        Section("Completadas") {
+                            ForEach(viewModel.visibleCompletedTasks) { task in
+                                row(for: task)
+                            }
                         }
                     }
                 }
             }
             .accessibilityIdentifier("dashboard.taskList")
         }
+    }
+
+    private var emptyTasksRow: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "sun.max")
+                .font(.title2)
+                .foregroundStyle(Color.lifeTasks)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Tu día está despejado")
+                    .font(.headline)
+                Text("Cuando quieras, añade una tarea con el botón +.")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.secondary)
+            }
+        }
+        .padding(.vertical, 6)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("dashboard.emptyState")
     }
 
     private func row(for task: TaskItem) -> some View {
@@ -152,11 +208,21 @@ struct DashboardView: View {
 }
 
 #if DEBUG
-#Preview("Con tareas") {
-    DashboardView(viewModel: TaskListViewModel(repository: PreviewTaskRepository.sample))
+#Preview("Con datos") {
+    DashboardView(
+        viewModel: TaskListViewModel(repository: PreviewTaskRepository.sample),
+        habits: HabitsViewModel(repository: PreviewHabitRepository.sample),
+        wellness: WellnessViewModel(repository: PreviewWellnessRepository.sample),
+        onSelectTab: { _ in }
+    )
 }
 
 #Preview("Vacío") {
-    DashboardView(viewModel: TaskListViewModel(repository: PreviewTaskRepository()))
+    DashboardView(
+        viewModel: TaskListViewModel(repository: PreviewTaskRepository()),
+        habits: HabitsViewModel(repository: PreviewHabitRepository()),
+        wellness: WellnessViewModel(repository: PreviewWellnessRepository()),
+        onSelectTab: { _ in }
+    )
 }
 #endif

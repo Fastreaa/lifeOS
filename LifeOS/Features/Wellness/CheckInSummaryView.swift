@@ -28,7 +28,7 @@ struct CheckInSummaryView: View {
     private func tile(_ metric: WellnessMetric, level: Int) -> some View {
         VStack(spacing: 4) {
             Image(systemName: metric.symbolName)
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(Color.lifeWellness)
             Text("\(level)/5")
                 .font(.headline)
             Text(metric.title)

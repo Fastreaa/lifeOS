@@ -13,9 +13,9 @@ struct HabitRowView: View {
         HStack(spacing: 14) {
             Image(systemName: habit.symbolName)
                 .font(.title3)
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(Color.lifeHabits)
                 .frame(width: 40, height: 40)
-                .background(Color.accentColor.opacity(0.12), in: Circle())
+                .background(Color.lifeHabits.opacity(0.12), in: Circle())
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 3) {
@@ -31,7 +31,7 @@ struct HabitRowView: View {
                 Button(action: onToggle) {
                     Image(systemName: isDone ? "checkmark.circle.fill" : "circle")
                         .font(.title2)
-                        .foregroundStyle(isDone ? Color.green : Color.secondary)
+                        .foregroundStyle(isDone ? Color.lifeHabits : Color.secondary)
                         .contentTransition(.symbolEffect(.replace))
                 }
                 .buttonStyle(.borderless)

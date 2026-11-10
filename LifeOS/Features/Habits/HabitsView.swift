@@ -99,7 +99,7 @@ struct HabitsView: View {
                     value: Double(viewModel.completedTodayCount),
                     total: Double(viewModel.scheduledTodayCount)
                 )
-                .tint(Color.green)
+                .tint(Color.lifeHabits)
             }
         }
         .padding(.vertical, 4)

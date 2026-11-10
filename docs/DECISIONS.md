@@ -168,3 +168,16 @@ Formato: contexto → decisión → consecuencias. Solo decisiones confirmadas.
   conclusiones ni hace diagnósticos; la pantalla lo dice explícitamente.
 - Datos sensibles: solo locales por ahora. Antes de sincronizarlos o
   enviarlos a la IA habrá que decidir explícitamente qué se comparte.
+
+## D-018 · Sistema de diseño y dashboard
+- Colores propios en `Core/DesignSystem/Theme.swift`, cada uno con versión
+  clara y oscura: principal (turquesa), tareas (azul), hábitos (naranja) y
+  bienestar (violeta). Las vistas usan estos colores, no valores sueltos.
+- Componentes compartidos: `CardHeader` y `ProgressRing`.
+- La pestaña "Hoy" reúne tres tarjetas (tareas, hábitos de hoy, cómo estás)
+  sobre la lista de tareas. Los ViewModels de cada módulo se comparten entre
+  pestañas, así que un cambio en una se ve al instante en la otra.
+- Dentro de una fila de `List`, cada botón usa `.buttonStyle(.borderless)`:
+  si no, tocar la fila activaría todos los botones a la vez.
+- El estado vacío de tareas ya no ocupa toda la pantalla: las tarjetas siempre
+  se muestran y el aviso aparece como una fila dentro de "Tareas".

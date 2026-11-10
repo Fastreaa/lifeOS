@@ -12,7 +12,7 @@ struct LevelPicker: View {
                     Text(metric.title)
                 } icon: {
                     Image(systemName: metric.symbolName)
-                        .foregroundStyle(Color.accentColor)
+                        .foregroundStyle(Color.lifeWellness)
                 }
                 .font(.headline)
                 Spacer()
@@ -38,7 +38,7 @@ struct LevelPicker: View {
                 .font(.body.weight(.semibold))
                 .frame(maxWidth: .infinity, minHeight: 40)
                 .background(
-                    isSelected ? Color.accentColor : Color.secondary.opacity(0.15),
+                    isSelected ? Color.lifeWellness : Color.secondary.opacity(0.15),
                     in: RoundedRectangle(cornerRadius: 10)
                 )
                 .foregroundStyle(isSelected ? Color.white : Color.primary)

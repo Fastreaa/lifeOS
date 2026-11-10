@@ -43,6 +43,11 @@ final class HabitsViewModel {
         items.filter { $0.progress.isScheduledToday && $0.progress.isCompletedToday }.count
     }
 
+    /// Hábitos que tocan hoy, para el dashboard.
+    var todayItems: [HabitOverview] {
+        items.filter(\.progress.isScheduledToday)
+    }
+
     var isShowingError: Bool {
         get { errorMessage != nil }
         set { if !newValue { errorMessage = nil } }

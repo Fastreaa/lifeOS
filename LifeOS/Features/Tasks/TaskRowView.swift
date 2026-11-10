@@ -9,7 +9,7 @@ struct TaskRowView: View {
             Button(action: onToggle) {
                 Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
                     .font(.title3)
-                    .foregroundStyle(task.isCompleted ? Color.accentColor : Color.secondary)
+                    .foregroundStyle(task.isCompleted ? Color.lifeTasks : Color.secondary)
                     .contentTransition(.symbolEffect(.replace))
             }
             .buttonStyle(.borderless)
