@@ -156,3 +156,15 @@ Formato: contexto → decisión → consecuencias. Solo decisiones confirmadas.
   el día de hoy mientras no termine. Se muestra también "X de Y en 7 días".
 - Navegación por pestañas (`TabView`): Hoy · Hábitos.
 - Añadir modelos al esquema de SwiftData usa migración ligera automática.
+
+## D-017 · Check-in de bienestar
+- Un registro por día (`LocalDay`): energía, ánimo y estrés del 1 al 5, horas
+  de sueño opcionales (0–24) y nota opcional (máx. 500 caracteres).
+- Guardar un día que ya tiene registro lo actualiza; si estaba borrado, lo
+  restaura. Nunca hay dos registros para el mismo día.
+- Etiquetas neutras y sin género ("Poca", "Normal", "Mucha").
+- El resumen semanal solo describe (promedios y gráfico con Swift Charts, que
+  es parte del SDK de Apple, no una dependencia externa). No saca
+  conclusiones ni hace diagnósticos; la pantalla lo dice explícitamente.
+- Datos sensibles: solo locales por ahora. Antes de sincronizarlos o
+  enviarlos a la IA habrá que decidir explícitamente qué se comparte.

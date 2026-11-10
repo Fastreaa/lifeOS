@@ -4,6 +4,7 @@ import SwiftUI
 struct RootView: View {
     let taskList: TaskListViewModel
     let habits: HabitsViewModel
+    let wellness: WellnessViewModel
 
     var body: some View {
         TabView {
@@ -12,6 +13,9 @@ struct RootView: View {
             }
             Tab("Hábitos", systemImage: "repeat") {
                 HabitsView(viewModel: habits)
+            }
+            Tab("Bienestar", systemImage: "heart.text.square") {
+                WellnessView(viewModel: wellness)
             }
         }
     }

@@ -7,8 +7,8 @@ struct LifeOSApp: App {
     var body: some Scene {
         WindowGroup {
             switch startup {
-            case .ready(_, let taskList, let habits):
-                RootView(taskList: taskList, habits: habits)
+            case .ready(_, let taskList, let habits, let wellness):
+                RootView(taskList: taskList, habits: habits, wellness: wellness)
             case .failed:
                 ContentUnavailableView {
                     Label("No se pudieron abrir tus datos", systemImage: "externaldrive.badge.exclamationmark")
@@ -23,7 +23,7 @@ struct LifeOSApp: App {
 /// Resultado de preparar la app al arrancar.
 /// Guarda `AppDependencies` para que la base de datos viva mientras viva la app.
 enum AppStartup {
-    case ready(AppDependencies, TaskListViewModel, HabitsViewModel)
+    case ready(AppDependencies, TaskListViewModel, HabitsViewModel, WellnessViewModel)
     case failed
 
     static func make(arguments: [String] = ProcessInfo.processInfo.arguments) -> AppStartup {
@@ -35,7 +35,8 @@ enum AppStartup {
             return .ready(
                 dependencies,
                 TaskListViewModel(repository: dependencies.taskRepository),
-                HabitsViewModel(repository: dependencies.habitRepository)
+                HabitsViewModel(repository: dependencies.habitRepository),
+                WellnessViewModel(repository: dependencies.wellnessRepository)
             )
         } catch {
             return .failed
