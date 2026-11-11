@@ -4,6 +4,7 @@ struct DashboardView: View {
     @Bindable var viewModel: TaskListViewModel
     let habits: HabitsViewModel
     let wellness: WellnessViewModel
+    let agenda: AgendaViewModel
     let onSelectTab: (AppTab) -> Void
 
     @State private var formMode: TaskFormMode?
@@ -67,6 +68,7 @@ struct DashboardView: View {
         viewModel.load()
         habits.load()
         wellness.load()
+        agenda.load()
     }
 
     // MARK: - Contenido
@@ -82,6 +84,15 @@ struct DashboardView: View {
                         TodayTasksCard(summary: viewModel.summary(at: date))
                     } header: {
                         Text(date.formatted(.dateTime.weekday(.wide).day().month(.wide)))
+                    }
+                    Section {
+                        TodayAgendaCard(
+                            viewModel: agenda,
+                            taskMinutes: viewModel.summary(at: date).estimatedMinutesDueToday,
+                            now: date
+                        ) {
+                            onSelectTab(.agenda)
+                        }
                     }
                     Section {
                         TodayHabitsCard(viewModel: habits) {
@@ -213,6 +224,7 @@ struct DashboardView: View {
         viewModel: TaskListViewModel(repository: PreviewTaskRepository.sample),
         habits: HabitsViewModel(repository: PreviewHabitRepository.sample),
         wellness: WellnessViewModel(repository: PreviewWellnessRepository.sample),
+        agenda: AgendaViewModel(repository: PreviewTimeBlockRepository.sample),
         onSelectTab: { _ in }
     )
 }
@@ -222,6 +234,7 @@ struct DashboardView: View {
         viewModel: TaskListViewModel(repository: PreviewTaskRepository()),
         habits: HabitsViewModel(repository: PreviewHabitRepository()),
         wellness: WellnessViewModel(repository: PreviewWellnessRepository()),
+        agenda: AgendaViewModel(repository: PreviewTimeBlockRepository()),
         onSelectTab: { _ in }
     )
 }

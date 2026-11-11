@@ -181,3 +181,21 @@ Formato: contexto → decisión → consecuencias. Solo decisiones confirmadas.
   si no, tocar la fila activaría todos los botones a la vez.
 - El estado vacío de tareas ya no ocupa toda la pantalla: las tarjetas siempre
   se muestran y el aviso aparece como una fila dentro de "Tareas".
+
+## D-019 · Agenda y bloques de tiempo
+- Un bloque pertenece a un `LocalDay` y guarda la hora como minutos del día
+  (540 = 9:00; 1440 = medianoche al final del día). No depende de la zona
+  horaria. v1: un bloque no cruza la medianoche; elegir 00:00 como fin
+  significa "hasta medianoche".
+- Tipos: clase, trabajo, estudio, ejercicio, descanso, personal, otro. Un tipo
+  desconocido al leer (por ejemplo, de una versión futura) se trata como "otro".
+- `DayPlan` (lógica pura) calcula, dentro de la ventana 7:00–23:00: tiempo
+  ocupado, descanso y libre (sin contar dos veces lo que se solapa), los
+  conflictos entre bloques y si caben las tareas estimadas de hoy
+  (holgado / justo con menos del 20 % de margen / no cabe).
+- El descanso es un tipo de bloque propio: no cuenta como tiempo libre para
+  tareas.
+- Mensajes en tono tranquilo: sugieren mover tareas, nunca alarman.
+- La ventana 7:00–23:00 es fija por ahora; pasará a ser configurable cuando
+  exista la configuración inicial del usuario.
+- `AppModels` agrupa los ViewModels de todos los módulos.

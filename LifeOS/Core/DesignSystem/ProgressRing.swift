@@ -16,6 +16,12 @@ struct ProgressRing: View {
                 .trim(from: 0, to: clamped)
                 .stroke(tint, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                 .rotationEffect(.degrees(-90))
+            if clamped >= 1 {
+                // Completo: una marca deja claro que no es un anillo vacío.
+                Image(systemName: "checkmark")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(tint)
+            }
         }
         .animation(.easeOut, value: clamped)
         .accessibilityElement()
