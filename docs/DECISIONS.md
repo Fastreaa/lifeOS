@@ -199,3 +199,16 @@ Formato: contexto → decisión → consecuencias. Solo decisiones confirmadas.
 - La ventana 7:00–23:00 es fija por ahora; pasará a ser configurable cuando
   exista la configuración inicial del usuario.
 - `AppModels` agrupa los ViewModels de todos los módulos.
+
+## D-020 · Perfil, bienvenida y ajustes
+- Un único `UserProfile` por dispositivo, guardado en SwiftData (no en
+  `UserDefaults`) para poder sincronizarlo más adelante con la tabla `profiles`.
+- Campos: nombre opcional (máx. 40), hora de levantarse y de acostarse en
+  minutos del día (el día activo dura al menos 4 h; 00:00 al acostarse =
+  medianoche) y si se completó la bienvenida.
+- La agenda calcula el tiempo libre con el horario del perfil: `RootView`
+  copia `profile.dayWindow` en `AgendaViewModel.dayWindow` cada vez que cambia.
+- La bienvenida aparece solo la primera vez y se puede saltar ("Ahora no"
+  guarda los valores por defecto y no vuelve a mostrarla).
+- Pruebas de interfaz: con `-ui-testing` la bienvenida se omite para no tapar
+  las demás pruebas; `-show-onboarding` la fuerza en las pruebas que la verifican.

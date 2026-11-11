@@ -5,17 +5,19 @@ struct DashboardView: View {
     let habits: HabitsViewModel
     let wellness: WellnessViewModel
     let agenda: AgendaViewModel
+    let profile: ProfileViewModel
     let onSelectTab: (AppTab) -> Void
 
     @State private var formMode: TaskFormMode?
     @State private var checkInSheet: CheckInSheet?
+    @State private var isShowingSettings = false
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         NavigationStack {
             TimelineView(.everyMinute) { context in
                 content(at: context.date)
-                    .navigationTitle(Text(DayPeriod(date: context.date).greeting))
+                    .navigationTitle(title(at: context.date))
             }
             .searchable(text: $viewModel.searchText, prompt: Text("Buscar tareas"))
             .safeAreaInset(edge: .bottom) {
@@ -26,6 +28,14 @@ struct DashboardView: View {
                 new > old
             }
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        isShowingSettings = true
+                    } label: {
+                        Label("Ajustes", systemImage: "gearshape")
+                    }
+                    .accessibilityIdentifier("dashboard.settings")
+                }
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         formMode = .create
@@ -39,6 +49,9 @@ struct DashboardView: View {
                 TaskFormView(mode: mode) { draft in
                     try save(draft, mode: mode)
                 }
+            }
+            .sheet(isPresented: $isShowingSettings) {
+                SettingsView(viewModel: profile)
             }
             .sheet(item: $checkInSheet) { sheet in
                 CheckInFormView(sheet: sheet) { draft in
@@ -62,6 +75,15 @@ struct DashboardView: View {
                 }
             }
         }
+    }
+
+    /// "Buenas tardes" o "Buenas tardes, Ana" si el usuario dio su nombre.
+    private func title(at date: Date) -> Text {
+        let greeting = DayPeriod(date: date).greeting
+        if let name = profile.displayName {
+            return Text("\(Text(greeting)), \(name)")
+        }
+        return Text(greeting)
     }
 
     private func loadAll() {
@@ -225,6 +247,7 @@ struct DashboardView: View {
         habits: HabitsViewModel(repository: PreviewHabitRepository.sample),
         wellness: WellnessViewModel(repository: PreviewWellnessRepository.sample),
         agenda: AgendaViewModel(repository: PreviewTimeBlockRepository.sample),
+        profile: ProfileViewModel(repository: PreviewProfileRepository(), suppressesOnboarding: true),
         onSelectTab: { _ in }
     )
 }
@@ -235,6 +258,7 @@ struct DashboardView: View {
         habits: HabitsViewModel(repository: PreviewHabitRepository()),
         wellness: WellnessViewModel(repository: PreviewWellnessRepository()),
         agenda: AgendaViewModel(repository: PreviewTimeBlockRepository()),
+        profile: ProfileViewModel(repository: PreviewProfileRepository(), suppressesOnboarding: true),
         onSelectTab: { _ in }
     )
 }

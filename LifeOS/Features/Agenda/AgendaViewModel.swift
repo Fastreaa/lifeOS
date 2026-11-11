@@ -12,6 +12,8 @@ final class AgendaViewModel {
     /// Bloques de hoy, siempre actualizados.
     private(set) var todayBlocks: [TimeBlock] = []
     private(set) var errorMessage: String?
+    /// Horario del día del usuario, en minutos. Lo actualiza la app al cambiar el perfil.
+    var dayWindow: ClosedRange<Int> = DayPlan.defaultWindow
 
     private let repository: any TimeBlockRepository
     private let calendar: Calendar
@@ -44,11 +46,11 @@ final class AgendaViewModel {
 
     /// Plan del día que se está viendo. Las tareas solo cuentan si es hoy.
     func plan(taskMinutes: Int) -> DayPlan {
-        DayPlan(blocks: blocks, taskMinutes: isShowingToday ? taskMinutes : 0)
+        DayPlan(blocks: blocks, taskMinutes: isShowingToday ? taskMinutes : 0, window: dayWindow)
     }
 
     func todayPlan(taskMinutes: Int) -> DayPlan {
-        DayPlan(blocks: todayBlocks, taskMinutes: taskMinutes)
+        DayPlan(blocks: todayBlocks, taskMinutes: taskMinutes, window: dayWindow)
     }
 
     func upcomingToday(at date: Date) -> UpcomingBlock? {

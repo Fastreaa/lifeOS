@@ -15,13 +15,15 @@ struct RootView: View {
     @State private var selection: AppTab = .today
 
     var body: some View {
+        let profile = Bindable(models.profile)
         TabView(selection: $selection) {
             Tab("Hoy", systemImage: "sun.max", value: AppTab.today) {
                 DashboardView(
                     viewModel: models.taskList,
                     habits: models.habits,
                     wellness: models.wellness,
-                    agenda: models.agenda
+                    agenda: models.agenda,
+                    profile: models.profile
                 ) { tab in
                     selection = tab
                 }
@@ -37,5 +39,15 @@ struct RootView: View {
             }
         }
         .tint(Color.lifeAccent)
+        .task {
+            models.profile.load()
+        }
+        .onChange(of: models.profile.profile.dayWindow, initial: true) { _, window in
+            // La agenda calcula el tiempo libre con el horario del usuario.
+            models.agenda.dayWindow = window
+        }
+        .fullScreenCover(isPresented: profile.isShowingOnboarding) {
+            OnboardingView(viewModel: models.profile)
+        }
     }
 }

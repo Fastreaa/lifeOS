@@ -30,9 +30,12 @@ enum AppStartup {
         // Las pruebas de interfaz arrancan con "-ui-testing": base de datos en
         // memoria, así cada prueba empieza vacía y no toca tus datos reales.
         let inMemory = arguments.contains("-ui-testing")
+        // En pruebas, la bienvenida se omite salvo que se pida con "-show-onboarding".
+        let suppressesOnboarding = inMemory && !arguments.contains("-show-onboarding")
         do {
             let dependencies = try AppDependencies(inMemory: inMemory)
-            return .ready(dependencies, AppModels(dependencies: dependencies))
+            let models = AppModels(dependencies: dependencies, suppressesOnboarding: suppressesOnboarding)
+            return .ready(dependencies, models)
         } catch {
             return .failed
         }
