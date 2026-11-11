@@ -18,7 +18,7 @@ final class DashboardCardsUITests: XCTestCase {
         let app = launchApp()
 
         let checkIn = app.buttons["dashboard.checkIn"]
-        XCTAssertTrue(checkIn.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.scrollUntilExists(checkIn))
         checkIn.tap()
 
         let save = app.buttons["checkInForm.save"]
@@ -26,7 +26,7 @@ final class DashboardCardsUITests: XCTestCase {
         save.tap()
 
         let summary = app.descendants(matching: .any)["dashboard.wellnessSummary"]
-        XCTAssertTrue(summary.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.scrollUntilExists(summary))
     }
 
     @MainActor
@@ -34,7 +34,7 @@ final class DashboardCardsUITests: XCTestCase {
         let app = launchApp()
 
         let openHabits = app.buttons["dashboard.openHabits"]
-        XCTAssertTrue(openHabits.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.scrollUntilExists(openHabits))
         openHabits.tap()
 
         let emptyHabits = app.descendants(matching: .any)["habits.emptyState"]

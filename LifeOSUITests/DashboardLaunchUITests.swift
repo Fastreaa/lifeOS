@@ -18,8 +18,9 @@ final class DashboardLaunchUITests: XCTestCase {
     func test_launch_showsDashboardEmptyState() throws {
         let app = launchApp()
 
+        // La lista de tareas está debajo de las tarjetas: puede hacer falta desplazarse.
         let emptyState = app.descendants(matching: .any)["dashboard.emptyState"]
-        XCTAssertTrue(emptyState.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.scrollUntilExists(emptyState))
     }
 
     @MainActor
@@ -34,6 +35,6 @@ final class DashboardLaunchUITests: XCTestCase {
         titleField.typeText("Comprar libros")
         app.buttons["taskForm.save"].tap()
 
-        XCTAssertTrue(app.staticTexts["Comprar libros"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.scrollUntilExists(app.staticTexts["Comprar libros"]))
     }
 }
