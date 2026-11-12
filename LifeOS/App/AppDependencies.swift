@@ -13,6 +13,7 @@ struct AppDependencies {
     let wellnessRepository: any WellnessRepository
     let timeBlockRepository: any TimeBlockRepository
     let profileRepository: any ProfileRepository
+    let projectRepository: any ProjectRepository
 
     /// - Parameter inMemory: `true` en pruebas: la base de datos vive solo en
     ///   memoria y desaparece al terminar.
@@ -24,6 +25,7 @@ struct AppDependencies {
             WellnessCheckInRecord.self,
             TimeBlockRecord.self,
             UserProfileRecord.self,
+            ProjectRecord.self,
         ])
         let configuration = ModelConfiguration(
             inMemory ? UUID().uuidString : nil,
@@ -37,5 +39,6 @@ struct AppDependencies {
         wellnessRepository = SwiftDataWellnessRepository(container: modelContainer)
         timeBlockRepository = SwiftDataTimeBlockRepository(container: modelContainer)
         profileRepository = SwiftDataProfileRepository(container: modelContainer)
+        projectRepository = SwiftDataProjectRepository(container: modelContainer)
     }
 }

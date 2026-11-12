@@ -10,13 +10,20 @@ struct TaskDraft: Equatable {
     var dueDate = TaskDraft.defaultDueDate()
     var hasEstimate = false
     var estimatedMinutes = 30
+    var projectID: UUID?
 
     init() {}
+
+    /// Tarea nueva ya asignada a un proyecto.
+    init(projectID: UUID?) {
+        self.projectID = projectID
+    }
 
     init(task: TaskItem) {
         title = task.title
         notes = task.notes ?? ""
         priority = task.priority
+        projectID = task.projectID
         if let due = task.dueDate {
             hasDueDate = true
             dueDate = due

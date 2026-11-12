@@ -20,3 +20,37 @@ extension XCUIApplication {
         return false
     }
 }
+
+extension XCUIElement {
+    /// Toca un campo de texto y escribe en él cuando de verdad tiene el foco.
+    ///
+    /// Si el campo está en una hoja que aún se está animando, el primer toque
+    /// puede no darle el foco y `typeText` falla con "Neither element nor any
+    /// descendant has keyboard focus". Aquí se espera a que se pueda tocar y se
+    /// reintenta el toque hasta que el campo tenga el foco.
+    @MainActor
+    func tapAndType(_ text: String, attempts: Int = 3) {
+        waitUntilHittable()
+        for _ in 0..<attempts {
+            tap()
+            if hasKeyboardFocus {
+                break
+            }
+            Thread.sleep(forTimeInterval: 0.5)
+        }
+        typeText(text)
+    }
+
+    @MainActor
+    private func waitUntilHittable(timeout: TimeInterval = 5) {
+        let deadline = Date().addingTimeInterval(timeout)
+        while !isHittable && Date() < deadline {
+            Thread.sleep(forTimeInterval: 0.2)
+        }
+    }
+
+    @MainActor
+    private var hasKeyboardFocus: Bool {
+        (value(forKey: "hasKeyboardFocus") as? Bool) ?? false
+    }
+}

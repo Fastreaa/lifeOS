@@ -16,8 +16,7 @@ final class HabitsUITests: XCTestCase {
 
         let nameField = app.textFields["habitForm.name"]
         XCTAssertTrue(nameField.waitForExistence(timeout: 5))
-        nameField.tap()
-        nameField.typeText("Beber agua")
+        nameField.tapAndType("Beber agua")
         app.buttons["habitForm.save"].tap()
 
         XCTAssertTrue(app.staticTexts["Beber agua"].waitForExistence(timeout: 5))

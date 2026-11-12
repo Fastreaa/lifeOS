@@ -2,6 +2,8 @@ import SwiftUI
 
 struct TaskRowView: View {
     let task: TaskItem
+    /// Proyecto de la tarea, para mostrar su nombre y color. Opcional.
+    var project: Project? = nil
     let onToggle: () -> Void
 
     var body: some View {
@@ -24,6 +26,12 @@ struct TaskRowView: View {
                     Text(details)
                         .font(.caption)
                         .foregroundStyle(Color.secondary)
+                }
+
+                if let project {
+                    Label(project.name, systemImage: project.symbolName)
+                        .font(.caption)
+                        .foregroundStyle(project.color.color)
                 }
             }
 

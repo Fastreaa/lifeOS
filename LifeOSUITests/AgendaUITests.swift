@@ -19,8 +19,7 @@ final class AgendaUITests: XCTestCase {
 
         let title = app.textFields["blockForm.title"]
         XCTAssertTrue(title.waitForExistence(timeout: 5))
-        title.tap()
-        title.typeText("Clase de cálculo")
+        title.tapAndType("Clase de cálculo")
         app.buttons["blockForm.save"].tap()
 
         XCTAssertTrue(app.staticTexts["Clase de cálculo"].waitForExistence(timeout: 5))

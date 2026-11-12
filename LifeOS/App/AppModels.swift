@@ -8,8 +8,16 @@ struct AppModels {
     let wellness: WellnessViewModel
     let agenda: AgendaViewModel
     let profile: ProfileViewModel
+    let reminders: RemindersViewModel
+    let projects: ProjectsViewModel
 
-    init(dependencies: AppDependencies, suppressesOnboarding: Bool = false) {
+    /// - Parameter usesSystemNotifications: `false` en pruebas de interfaz: ni
+    ///   diálogo de permiso ni notificaciones reales.
+    init(
+        dependencies: AppDependencies,
+        suppressesOnboarding: Bool = false,
+        usesSystemNotifications: Bool = true
+    ) {
         taskList = TaskListViewModel(repository: dependencies.taskRepository)
         habits = HabitsViewModel(repository: dependencies.habitRepository)
         wellness = WellnessViewModel(repository: dependencies.wellnessRepository)
@@ -17,6 +25,19 @@ struct AppModels {
         profile = ProfileViewModel(
             repository: dependencies.profileRepository,
             suppressesOnboarding: suppressesOnboarding
+        )
+        reminders = RemindersViewModel(
+            store: usesSystemNotifications
+                ? UserDefaultsReminderSettingsStore()
+                : InMemoryReminderSettingsStore(),
+            scheduler: usesSystemNotifications
+                ? UserNotificationScheduler()
+                : DisabledNotificationScheduler(),
+            blockRepository: dependencies.timeBlockRepository
+        )
+        projects = ProjectsViewModel(
+            repository: dependencies.projectRepository,
+            taskRepository: dependencies.taskRepository
         )
     }
 }

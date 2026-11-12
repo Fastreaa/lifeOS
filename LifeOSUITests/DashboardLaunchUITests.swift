@@ -31,8 +31,7 @@ final class DashboardLaunchUITests: XCTestCase {
 
         let titleField = app.textFields["taskForm.title"]
         XCTAssertTrue(titleField.waitForExistence(timeout: 5))
-        titleField.tap()
-        titleField.typeText("Comprar libros")
+        titleField.tapAndType("Comprar libros")
         app.buttons["taskForm.save"].tap()
 
         XCTAssertTrue(app.scrollUntilExists(app.staticTexts["Comprar libros"]))

@@ -15,18 +15,25 @@ enum TaskFormMode: Identifiable {
 
 struct TaskFormView: View {
     let mode: TaskFormMode
+    let projects: [Project]
     let onSave: (TaskDraft) throws -> Void
 
     @Environment(\.dismiss) private var dismiss
     @State private var draft: TaskDraft
     @State private var errorMessage: String?
 
-    init(mode: TaskFormMode, onSave: @escaping (TaskDraft) throws -> Void) {
+    init(
+        mode: TaskFormMode,
+        projects: [Project] = [],
+        initialProjectID: UUID? = nil,
+        onSave: @escaping (TaskDraft) throws -> Void
+    ) {
         self.mode = mode
+        self.projects = projects
         self.onSave = onSave
         switch mode {
         case .create:
-            _draft = State(initialValue: TaskDraft())
+            _draft = State(initialValue: TaskDraft(projectID: initialProjectID))
         case .edit(let task):
             _draft = State(initialValue: TaskDraft(task: task))
         }
@@ -40,6 +47,22 @@ struct TaskFormView: View {
                         .accessibilityIdentifier("taskForm.title")
                     TextField("Notas", text: $draft.notes, axis: .vertical)
                         .lineLimit(1...4)
+                }
+
+                if !projects.isEmpty {
+                    Section("Proyecto") {
+                        Picker("Proyecto", selection: $draft.projectID) {
+                            Text("Sin proyecto").tag(UUID?.none)
+                            ForEach(projects) { project in
+                                Label {
+                                    Text(project.name)
+                                } icon: {
+                                    Image(systemName: project.symbolName)
+                                }
+                                .tag(Optional(project.id))
+                            }
+                        }
+                    }
                 }
 
                 Section("Prioridad") {

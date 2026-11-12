@@ -50,6 +50,19 @@ final class TaskListViewModel {
         DaySummary(pending: pendingTasks, now: date, calendar: calendar)
     }
 
+    /// Todas las tareas visibles (pendientes y completadas).
+    var allTasks: [TaskItem] { pendingTasks + completedTasks }
+
+    /// Pendientes de un proyecto, con el mismo orden que la lista general.
+    func pendingTasks(inProject projectID: UUID) -> [TaskItem] {
+        pendingTasks.filter { $0.projectID == projectID }
+    }
+
+    /// Completadas de un proyecto, la más reciente arriba.
+    func completedTasks(inProject projectID: UUID) -> [TaskItem] {
+        completedTasks.filter { $0.projectID == projectID }
+    }
+
     // MARK: - Acciones
 
     func load() {
@@ -70,6 +83,7 @@ final class TaskListViewModel {
             priority: draft.priority,
             dueDate: draft.resolvedDueDate,
             estimatedMinutes: draft.resolvedEstimate,
+            projectID: draft.projectID,
             now: now()
         )
         try repository.save(task)
@@ -87,6 +101,7 @@ final class TaskListViewModel {
             estimatedMinutes: draft.resolvedEstimate,
             now: now()
         )
+        updated.assign(toProject: draft.projectID, at: now())
         try repository.save(updated)
         load()
     }

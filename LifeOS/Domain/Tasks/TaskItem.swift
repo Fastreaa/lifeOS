@@ -17,6 +17,8 @@ nonisolated struct TaskItem: Identifiable, Equatable, Sendable {
     private(set) var dueDate: Date?
     private(set) var estimatedMinutes: Int?
     private(set) var completedAt: Date?
+    /// Proyecto al que pertenece, si tiene. Ver D-022.
+    private(set) var projectID: UUID?
     let createdAt: Date
     private(set) var updatedAt: Date
     /// Borrado lógico: la tarea se oculta, pero el registro se conserva
@@ -35,6 +37,7 @@ nonisolated struct TaskItem: Identifiable, Equatable, Sendable {
         priority: TaskPriority = .medium,
         dueDate: Date? = nil,
         estimatedMinutes: Int? = nil,
+        projectID: UUID? = nil,
         now: Date = .now
     ) throws {
         self.id = id
@@ -44,6 +47,7 @@ nonisolated struct TaskItem: Identifiable, Equatable, Sendable {
         self.dueDate = dueDate
         self.estimatedMinutes = try Self.validatedEstimate(estimatedMinutes)
         self.completedAt = nil
+        self.projectID = projectID
         self.createdAt = now
         self.updatedAt = now
         self.deletedAt = nil
@@ -64,7 +68,8 @@ nonisolated struct TaskItem: Identifiable, Equatable, Sendable {
         completedAt: Date?,
         createdAt: Date,
         updatedAt: Date,
-        deletedAt: Date?
+        deletedAt: Date?,
+        projectID: UUID? = nil
     ) throws {
         self.id = id
         self.title = try Self.validatedTitle(title)
@@ -73,6 +78,7 @@ nonisolated struct TaskItem: Identifiable, Equatable, Sendable {
         self.dueDate = dueDate
         self.estimatedMinutes = try Self.validatedEstimate(estimatedMinutes)
         self.completedAt = completedAt
+        self.projectID = projectID
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.deletedAt = deletedAt
@@ -119,6 +125,14 @@ nonisolated struct TaskItem: Identifiable, Equatable, Sendable {
     mutating func markDeleted(at now: Date = .now) {
         guard deletedAt == nil else { return }
         deletedAt = now
+        updatedAt = now
+    }
+
+    /// Asigna la tarea a un proyecto, o la deja sin proyecto con `nil`.
+    /// Si ya estaba en ese proyecto, no cambia nada.
+    mutating func assign(toProject projectID: UUID?, at now: Date = .now) {
+        guard self.projectID != projectID else { return }
+        self.projectID = projectID
         updatedAt = now
     }
 

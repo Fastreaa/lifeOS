@@ -212,3 +212,36 @@ Formato: contexto → decisión → consecuencias. Solo decisiones confirmadas.
   guarda los valores por defecto y no vuelve a mostrarla).
 - Pruebas de interfaz: con `-ui-testing` la bienvenida se omite para no tapar
   las demás pruebas; `-show-onboarding` la fuerza en las pruebas que la verifican.
+
+## D-021 · Notificaciones locales
+- Tres recordatorios, todos desactivados por defecto: hábitos (diario, 20:00),
+  check-in de bienestar (diario, 21:00) y avisos de bloques de la agenda
+  (5/10/15/30 min antes, para hoy y mañana).
+- El permiso de iOS se pide solo al activar el primer recordatorio. Si se
+  deniega, todo vuelve a apagado y Ajustes explica cómo activarlo en el iPhone.
+- Las preferencias se guardan en `UserDefaults` (JSON), no en SwiftData: son
+  de cada dispositivo y no se sincronizan. Si el formato guardado no se puede
+  leer, se usan los valores por defecto.
+- `ReminderPlanner` (lógica pura) decide qué notificaciones programar; cada vez
+  se sustituyen todas las pendientes. Se recalculan al abrir la app, al volver
+  a ella y al cambiar la agenda. Máximo 60 (iOS admite 64 por app).
+- `NotificationPresenter` muestra los avisos también con la app abierta.
+- Pruebas de interfaz: con `-ui-testing` se usa un programador que no hace nada
+  y preferencias en memoria, así no aparece el diálogo de permiso.
+- Textos suaves y sin culpa ("Si te apetece…", "Un paso pequeño también cuenta").
+
+## D-022 · Proyectos (y categorías)
+- Proyectos y categorías son un solo concepto, `Project`: sirve para algo con
+  final ("Proyecto final APPS") y para un área permanente ("Universidad",
+  "Casa"). Dos conceptos casi iguales obligarían a decidir cada vez cuál usar.
+- Un proyecto tiene nombre (máx. 40), icono y color de una paleta fija. Un
+  color desconocido al leer se trata como gris.
+- Una tarea pertenece a lo sumo a un proyecto (`TaskItem.projectID`, opcional).
+  Se cambia con `assign(toProject:)`, separado de `update`, para que editar el
+  resto de campos nunca quite el proyecto por accidente.
+- `TaskRecord.projectID` es opcional: SwiftData lo añade a las bases de datos
+  existentes sin perder datos (migración ligera).
+- Borrar un proyecto no borra sus tareas: quedan sin proyecto.
+- `ProjectProgress` (lógica pura) calcula pendientes, hechas, minutos
+  estimados pendientes y fracción completada.
+- Nueva pestaña "Proyectos" entre "Agenda" y "Hábitos".

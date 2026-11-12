@@ -34,8 +34,7 @@ final class OnboardingUITests: XCTestCase {
 
         let name = app.textFields["onboarding.name"]
         XCTAssertTrue(name.waitForExistence(timeout: 5))
-        name.tap()
-        name.typeText("Ana")
+        name.tapAndType("Ana")
 
         let nameNext = app.buttons["onboarding.next.name"]
         XCTAssertTrue(nameNext.waitForExistence(timeout: 5))

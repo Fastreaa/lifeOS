@@ -4,6 +4,7 @@ import SwiftUI
 enum AppTab: Hashable {
     case today
     case agenda
+    case projects
     case habits
     case wellness
 }
@@ -13,6 +14,7 @@ struct RootView: View {
     let models: AppModels
 
     @State private var selection: AppTab = .today
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         let profile = Bindable(models.profile)
@@ -23,13 +25,18 @@ struct RootView: View {
                     habits: models.habits,
                     wellness: models.wellness,
                     agenda: models.agenda,
-                    profile: models.profile
+                    profile: models.profile,
+                    reminders: models.reminders,
+                    projects: models.projects
                 ) { tab in
                     selection = tab
                 }
             }
             Tab("Agenda", systemImage: "calendar", value: AppTab.agenda) {
                 AgendaView(viewModel: models.agenda, taskList: models.taskList)
+            }
+            Tab("Proyectos", systemImage: "folder", value: AppTab.projects) {
+                ProjectsView(viewModel: models.projects, taskList: models.taskList)
             }
             Tab("Hábitos", systemImage: "repeat", value: AppTab.habits) {
                 HabitsView(viewModel: models.habits)
@@ -41,6 +48,20 @@ struct RootView: View {
         .tint(Color.lifeAccent)
         .task {
             models.profile.load()
+            await models.reminders.load()
+        }
+        .onChange(of: scenePhase) { _, phase in
+            // Al volver a la app: releer el permiso (pudo cambiar en los
+            // Ajustes del iPhone) y recalcular los avisos.
+            if phase == .active {
+                Task { await models.reminders.load() }
+            }
+        }
+        .onChange(of: models.agenda.todayBlocks) {
+            Task { await models.reminders.reschedule() }
+        }
+        .onChange(of: models.agenda.blocks) {
+            Task { await models.reminders.reschedule() }
         }
         .onChange(of: models.profile.profile.dayWindow, initial: true) { _, window in
             // La agenda calcula el tiempo libre con el horario del usuario.

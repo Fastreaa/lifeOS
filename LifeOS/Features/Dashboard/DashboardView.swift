@@ -6,6 +6,8 @@ struct DashboardView: View {
     let wellness: WellnessViewModel
     let agenda: AgendaViewModel
     let profile: ProfileViewModel
+    let reminders: RemindersViewModel
+    let projects: ProjectsViewModel
     let onSelectTab: (AppTab) -> Void
 
     @State private var formMode: TaskFormMode?
@@ -46,12 +48,12 @@ struct DashboardView: View {
                 }
             }
             .sheet(item: $formMode) { mode in
-                TaskFormView(mode: mode) { draft in
+                TaskFormView(mode: mode, projects: projects.projects) { draft in
                     try save(draft, mode: mode)
                 }
             }
             .sheet(isPresented: $isShowingSettings) {
-                SettingsView(viewModel: profile)
+                SettingsView(viewModel: profile, reminders: reminders)
             }
             .sheet(item: $checkInSheet) { sheet in
                 CheckInFormView(sheet: sheet) { draft in
@@ -91,6 +93,7 @@ struct DashboardView: View {
         habits.load()
         wellness.load()
         agenda.load()
+        projects.load()
     }
 
     // MARK: - Contenido
@@ -176,7 +179,7 @@ struct DashboardView: View {
     }
 
     private func row(for task: TaskItem) -> some View {
-        TaskRowView(task: task) {
+        TaskRowView(task: task, project: projects.project(withID: task.projectID)) {
             viewModel.toggleCompletion(of: task)
         }
         .contentShape(Rectangle())
@@ -248,6 +251,12 @@ struct DashboardView: View {
         wellness: WellnessViewModel(repository: PreviewWellnessRepository.sample),
         agenda: AgendaViewModel(repository: PreviewTimeBlockRepository.sample),
         profile: ProfileViewModel(repository: PreviewProfileRepository(), suppressesOnboarding: true),
+        reminders: RemindersViewModel(
+            store: InMemoryReminderSettingsStore(),
+            scheduler: DisabledNotificationScheduler(),
+            blockRepository: PreviewTimeBlockRepository()
+        ),
+        projects: ProjectsViewModel(repository: PreviewProjectRepository(), taskRepository: PreviewTaskRepository()),
         onSelectTab: { _ in }
     )
 }
@@ -259,6 +268,12 @@ struct DashboardView: View {
         wellness: WellnessViewModel(repository: PreviewWellnessRepository()),
         agenda: AgendaViewModel(repository: PreviewTimeBlockRepository()),
         profile: ProfileViewModel(repository: PreviewProfileRepository(), suppressesOnboarding: true),
+        reminders: RemindersViewModel(
+            store: InMemoryReminderSettingsStore(),
+            scheduler: DisabledNotificationScheduler(),
+            blockRepository: PreviewTimeBlockRepository()
+        ),
+        projects: ProjectsViewModel(repository: PreviewProjectRepository(), taskRepository: PreviewTaskRepository()),
         onSelectTab: { _ in }
     )
 }

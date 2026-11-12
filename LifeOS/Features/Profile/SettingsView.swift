@@ -3,13 +3,15 @@ import SwiftUI
 /// Ajustes: nombre, horario del día, privacidad y versión.
 struct SettingsView: View {
     let viewModel: ProfileViewModel
+    let reminders: RemindersViewModel
 
     @Environment(\.dismiss) private var dismiss
     @State private var draft: ProfileDraft
     @State private var errorMessage: String?
 
-    init(viewModel: ProfileViewModel) {
+    init(viewModel: ProfileViewModel, reminders: RemindersViewModel) {
         self.viewModel = viewModel
+        self.reminders = reminders
         _draft = State(initialValue: ProfileDraft(profile: viewModel.profile))
     }
 
@@ -37,6 +39,8 @@ struct SettingsView: View {
                             .foregroundStyle(Color.red)
                     }
                 }
+
+                RemindersSection(viewModel: reminders)
 
                 Section {
                     Label("Tus datos se guardan solo en este iPhone.", systemImage: "lock.shield")

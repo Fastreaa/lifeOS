@@ -15,6 +15,8 @@ nonisolated final class TaskRecord {
     var dueDate: Date?
     var estimatedMinutes: Int?
     var completedAt: Date?
+    /// Opcional: añadirlo no rompe las bases de datos existentes (migración ligera).
+    var projectID: UUID?
     var createdAt: Date
     var updatedAt: Date
     var deletedAt: Date?
@@ -27,6 +29,7 @@ nonisolated final class TaskRecord {
         dueDate = task.dueDate
         estimatedMinutes = task.estimatedMinutes
         completedAt = task.completedAt
+        projectID = task.projectID
         createdAt = task.createdAt
         updatedAt = task.updatedAt
         deletedAt = task.deletedAt
@@ -40,6 +43,7 @@ nonisolated final class TaskRecord {
         dueDate = task.dueDate
         estimatedMinutes = task.estimatedMinutes
         completedAt = task.completedAt
+        projectID = task.projectID
         createdAt = task.createdAt
         updatedAt = task.updatedAt
         deletedAt = task.deletedAt
@@ -60,7 +64,8 @@ nonisolated final class TaskRecord {
             completedAt: completedAt,
             createdAt: createdAt,
             updatedAt: updatedAt,
-            deletedAt: deletedAt
+            deletedAt: deletedAt,
+            projectID: projectID
         )
     }
 }

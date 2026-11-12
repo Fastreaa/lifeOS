@@ -1,8 +1,16 @@
 import SwiftUI
+import UserNotifications
 
 @main
 struct LifeOSApp: App {
     @State private var startup = AppStartup.make()
+    /// El centro de notificaciones guarda su delegado de forma débil: hay que
+    /// mantenerlo vivo aquí.
+    private let notificationPresenter = NotificationPresenter()
+
+    init() {
+        UNUserNotificationCenter.current().delegate = notificationPresenter
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -34,7 +42,11 @@ enum AppStartup {
         let suppressesOnboarding = inMemory && !arguments.contains("-show-onboarding")
         do {
             let dependencies = try AppDependencies(inMemory: inMemory)
-            let models = AppModels(dependencies: dependencies, suppressesOnboarding: suppressesOnboarding)
+            let models = AppModels(
+                dependencies: dependencies,
+                suppressesOnboarding: suppressesOnboarding,
+                usesSystemNotifications: !inMemory
+            )
             return .ready(dependencies, models)
         } catch {
             return .failed
