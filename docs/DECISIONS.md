@@ -245,3 +245,36 @@ Formato: contexto → decisión → consecuencias. Solo decisiones confirmadas.
 - `ProjectProgress` (lógica pura) calcula pendientes, hechas, minutos
   estimados pendientes y fracción completada.
 - Nueva pestaña "Proyectos" entre "Agenda" y "Hábitos".
+
+## D-023 · Nube: autenticación y SDK
+- Inicio de sesión con código de 6 dígitos por correo (Supabase Auth, OTP).
+  No requiere la cuenta de pago de Apple ni configurar enlaces especiales.
+  "Iniciar sesión con Apple" queda para más adelante si se contrata el
+  Apple Developer Program.
+- La cuenta es opcional: LifeOS sigue funcionando sin conexión y sin cuenta.
+- Se usa el SDK oficial `supabase-swift` (solo Auth, PostgREST y Functions),
+  añadido con Swift Package Manager y fijado "hasta la siguiente versión
+  mayor". Motivo: gestiona sesión, renovación de tokens y Llavero; hacerlo a
+  mano sería más código sensible propio.
+- Aislamiento: solo `Infrastructure/` importa Supabase. Dominio y vistas usan
+  protocolos propios, como con SwiftData.
+- Qué datos verá la IA: pendiente de decidir antes del paso 03.4.
+
+## D-024 · Esquema remoto inicial
+- Migraciones SQL versionadas en `supabase/migrations/`, aplicadas desde el
+  editor SQL de Supabase (sin instalar la CLI en el equipo compartido).
+- Primera versión: `profiles`, `projects`, `tasks`. Hábitos, agenda y
+  bienestar en migraciones posteriores (bienestar requiere decidir antes qué
+  se comparte, por ser datos sensibles).
+- Ids generados en el iPhone; `created_at`/`updated_at`/`deleted_at` del
+  dominio; `server_updated_at` lo pone Postgres para sincronizar sin
+  depender del reloj del teléfono.
+- RLS en todas las tablas: cada usuario solo lee, crea y actualiza sus filas.
+  `anon` no tiene permisos; `authenticated` no tiene DELETE (solo borrado
+  lógico). Borrar la cuenta elimina todo en cascada.
+- Una tarea solo puede apuntar a un proyecto del mismo usuario (clave
+  foránea compuesta). Al sincronizar, los proyectos se suben antes que las
+  tareas.
+- Los límites de longitud del servidor son más amplios que los de la app:
+  son una red de seguridad, no las reglas de negocio.
+- RLS se comprueba con `supabase/tests/` antes de conectar la app.
